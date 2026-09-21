@@ -1,16 +1,29 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './App.css'
 import Header from './components/header'
 import ProductCard from './components/productCard'
+import LoginPage from './pages/login'
+import SignUpPage from './pages/signup'
+import HomePage from './pages/home'
+import AdminPage from './pages/adminPage'
+import { Toaster } from 'react-hot-toast'
 
 function App() {
   
 
   return (
-    <>
-      <Header/>
-      <ProductCard name="Apple Laptop" description="lorem sasds sdssd" price="1000" picture="https://picsum.photos/id/2/200/300" />
-      <ProductCard name="Gaming Laptop" description="lorem fhffh jfjfjf" price="2000" picture="https://picsum.photos/id/1/200/300" />
-    </>
+    <BrowserRouter>
+      <div>
+        <Toaster position='top-right'/>
+        <Routes path="/*">
+          <Route path="/" element={<HomePage/>}/>
+          <Route path="/login" element={<LoginPage/>}/>
+          <Route path="/signup" element={<SignUpPage/>}/>
+          <Route path="/admin/*" element={<AdminPage/>}/>
+          <Route path="/*" element={<h1>404 Not Found</h1>}/>
+        </Routes>
+      </div>
+    </BrowserRouter>
   )
 }
 
