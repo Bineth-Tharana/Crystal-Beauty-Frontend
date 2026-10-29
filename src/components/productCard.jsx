@@ -92,7 +92,7 @@ export default function ProductCard(props) {
                         disabled={product.stock <= 0}
                         className="px-4 py-2.5 border border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition disabled:border-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed"
                     >
-                        Buy
+                        Buy Now
                     </button>
 
                 </div>
