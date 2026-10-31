@@ -2,52 +2,76 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams} from "react-router-dom";
 import Loading from "../../components/loading";
-import ImageSlider from "../../components/imageSlider";
-import "./styles.css"
+import "./styles.css";
 import { addToCart, getCart } from "../../utils/cart";
 
 export default function ProductOverviewPage(){
     const params = useParams();
     const productId = params.id;
-    const [status, setStatus] = useState("loading")//loading, success, error
+    const [status, setStatus] = useState("loading"); // loading, success, error
     const [product, setProduct] = useState(null);
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0); // Track active image index
     const navigate = useNavigate();
 
-    useEffect(
-        ()=>{
-        axios.get(import.meta.env.VITE_BACKEND_URL + "/api/products/"+productId).then(
-            (response)=>{
+    useEffect(() => {
+        axios.get(import.meta.env.VITE_BACKEND_URL + "/api/products/" + productId).then(
+            (response) => {
                 console.log(response.data);
                 setProduct(response.data);
                 setStatus("success");
             }
         ).catch(
-            (error)=>{
+            (error) => {
                 console.log(error);
                 setStatus("error");
-                toast.error("Error fetching product details");
+                // toast.error("Error fetching product details");
             }
-        )
-        }
-    ,[])
+        );
+    }, [productId]);
+
     return(
         <>
         {
             status == "success" && (
                <div className="w-full h-full flex">
-                   <div className="w-[50%] h-full flex justify-center items-center">
-                       <ImageSlider images={product.images} />
+                   {/* Left side: Main Image & Thumbnails */}
+                   <div className="w-[50%] h-full flex flex-col justify-center items-center">
+                       {/* Main Display Image */}
+                       <div className="w-[400px] h-[400px] flex justify-center items-center mb-4 overflow-hidden rounded-lg shadow-md bg-gray-100">
+                           <img 
+                               src={product.images[selectedImageIndex]} 
+                               alt={product.name} 
+                               className="w-full h-full object-cover"
+                           />
+                       </div>
+
+                       {/* Thumbnails Row for Switching Images */}
+                       <div className="flex gap-3 mt-2">
+                           {product.images.map((img, index) => (
+                               <div 
+                                   key={index} 
+                                   onClick={() => setSelectedImageIndex(index)}
+                                   className={`w-20 h-20 rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${
+                                       selectedImageIndex === index ? "border-accent scale-105" : "border-transparent opacity-70 hover:opacity-100"
+                                   }`}
+                               >
+                                   <img src={img} alt={`Thumbnail ${index}`} className="w-full h-full object-cover" />
+                               </div>
+                           ))}
+                       </div>
                    </div>
+
+                   {/* Right side: Product Details */}
                    <div className="w-[50%] flex justify-center items-center h-full">
                       <div className="w-[500px] h-[600px] flex flex-col items-center">
                         <h1 className="w-full text-center text-4xl text-secondary font-semibold">{product.name}
                             {
-                                product.altNames.map((altName,index)=>{
+                                product.altNames.map((altName, index) => {
                                     return(
                                         <span key={index} className="text-4xl text-gray-600 font-normal">
-                                            {" | "+altName}
+                                            {" | " + altName}
                                         </span>
-                                    )
+                                    );
                                 })
                             }
                         </h1>
@@ -65,14 +89,14 @@ export default function ProductOverviewPage(){
                             :<span className="text-4xl mx-4 text-accent">{product.price.toFixed(2)}</span>
                         }
                         <div className="w-full flex justify-center items-center mt-4">
-                            <button className="w-[200px] h-[50px] mx-4 cursor-pointer bg-accent text-white rounded-2xl hover:bg-accent/80 transition-all duration-300" onClick={()=>{
-                                console.log("Old cart")
-                                console.log(getCart())
-                                addToCart(product,1)
-                                console.log("New cart")
-                                console.log(getCart())
+                            <button className="w-[200px] h-[50px] mx-4 cursor-pointer bg-accent text-white rounded-2xl hover:bg-accent/85 transition-all duration-300" onClick={()=>{
+                                console.log("Old cart");
+                                console.log(getCart());
+                                addToCart(product, 1);
+                                console.log("New cart");
+                                console.log(getCart());
                             }}>Add to Cart</button>
-                            <button className="w-[200px] h-[50px] mx-4 cursor-pointer bg-accent text-white rounded-2xl hover:bg-accent/80 transition-all duration-300"
+                            <button className="w-[200px] h-[50px] mx-4 cursor-pointer bg-accent text-white rounded-2xl hover:bg-accent/85 transition-all duration-300"
                             onClick={()=>{
                             navigate("/checkout", {
                                 state: {
@@ -80,14 +104,14 @@ export default function ProductOverviewPage(){
                                         {
                                             productId: product.productId,
                                             name: product.name,
-                                            image: product.images[0],
+                                            image: product.images[selectedImageIndex],
                                             price: product.price,
                                             labelledPrice: product.labelledPrice,
                                             qty: 1
                                         }
                                     ]
                                 }
-                            })
+                            });
                         }}>Buy Now</button>
                         </div>
                       </div>
@@ -98,5 +122,5 @@ export default function ProductOverviewPage(){
                 status == "loading" && <Loading />
             }
         </>
-    )
+    );
 }
