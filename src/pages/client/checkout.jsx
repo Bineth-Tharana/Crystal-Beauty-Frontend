@@ -65,6 +65,7 @@ export default function CheckoutPage() {
           },
         },
       );
+      console.log(orderInformation);
       toast.success("Order placed successfully");
     } catch (err) {
       console.log(err);

@@ -1,9 +1,7 @@
 
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { sampleProducts } from "../../assets/sampleData";
 import Loading from "../../components/loading";
-
 import {
   FaBoxOpen,
   FaShoppingBag,
@@ -16,13 +14,12 @@ import {
   FaEye,
   FaReceipt,
   FaTag,
-  FaClock,
-  FaImage
+  FaClock
 } from "react-icons/fa";
-
 import toast from "react-hot-toast";
 import Modal from "react-modal";
 
+// Set the application root for accessibility
 Modal.setAppElement("#root");
 
 export default function AdminOrdersPage() {
@@ -32,8 +29,10 @@ export default function AdminOrdersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeOrder, setActiveOrder] = useState(null);
 
-  // Fetch orders
+  // Fetch Orders
   useEffect(() => {
+
+    if (!isLoading) return;
 
     const token = localStorage.getItem("token");
 
@@ -43,69 +42,28 @@ export default function AdminOrdersPage() {
       return;
     }
 
-    axios.get(
-      import.meta.env.VITE_BACKEND_URL + "/api/orders",
-      {
+    axios
+      .get(import.meta.env.VITE_BACKEND_URL + "/api/orders", {
         headers: {
-          Authorization: "Bearer " + token
-        }
-      }
-    )
-    .then((res) => {
-      setOrders(res.data);
-    })
-    .catch((e) => {
-      toast.error(
-        e.response?.data?.message || "Error fetching orders"
-      );
-    })
-    .finally(() => {
-      setIsLoading(false);
-    });
+          Authorization: "Bearer " + token,
+        },
+      })
+      .then((res) => {
+        setOrders(res.data);
+      })
+      .catch((e) => {
+        toast.error(
+          e.response?.data?.message || "Error fetching orders"
+        );
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
 
-  }, []);
-
-
-  // Format currency
-  function formatPrice(price) {
-
-    return Number(price || 0).toLocaleString("en-LK", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-
-  }
+  }, [isLoading]);
 
 
-  // Format date
-  function formatDate(date) {
-
-    if (!date) return "N/A";
-
-    return new Date(date).toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric"
-    });
-
-  }
-
-
-  // Format time
-  function formatTime(date) {
-
-    if (!date) return "N/A";
-
-    return new Date(date).toLocaleTimeString("en-LK", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true
-    });
-
-  }
-
-
-  // Status styling
+  // Status Badge Styling
   function getStatusStyle(status) {
 
     switch (status?.toLowerCase()) {
@@ -124,138 +82,50 @@ export default function AdminOrdersPage() {
 
       default:
         return "bg-gray-100 text-gray-700";
-
     }
-
   }
 
 
-  // Find product in sampleProducts
-  function findProduct(productId) {
-
-    return sampleProducts.find(
-      (product) => product.productId === productId
-    );
-
-  }
-
-
-  // Normalize order product information
-  function getOrderedProduct(item) {
-
-    // Your original Mongoose structure
-    let product = item.productInfo;
-
-    // Support orders containing only a product ID
-    if (!product && typeof item.productId === "string") {
-      product = findProduct(item.productId);
-    }
-
-    // Support populated productId objects
-    if (!product && typeof item.productId === "object") {
-      product = item.productId;
-    }
-
-    // Support alternative product property
-    if (!product && item.product) {
-      product = item.product;
-    }
-
-    if (!product) return null;
-
-    // Handle productInfo containing only a product ID
-    if (typeof product === "string") {
-      product = findProduct(product);
-    }
-
-    if (!product) return null;
-
-    // If product information is incomplete, look up catalogue
-    const catalogueProduct = findProduct(product.productId);
-
-    return {
-      productId: product.productId || catalogueProduct?.productId || "N/A",
-
-      name:
-        product.name ||
-        product.productName ||
-        catalogueProduct?.name ||
-        "Unnamed Product",
-
-      description:
-        product.description ||
-        catalogueProduct?.description ||
-        "",
-
-      images:
-        product.images?.length > 0
-          ? product.images
-          : catalogueProduct?.images || [],
-
-      labelledPrice: Number(
-        product.labelledPrice ??
-        catalogueProduct?.labelledPrice ??
-        product.price ??
-        0
-      ),
-
-      price: Number(
-        product.price ??
-        catalogueProduct?.price ??
-        0
-      ),
-
-      quantity: Number(item.quantity ?? item.qty ?? 1)
-    };
-
-  }
-
-
-  // Open order modal
+  // Open Order Details
   function openOrder(order) {
-
     setActiveOrder(order);
     setIsModalOpen(true);
-
   }
 
 
-  // Close order modal
-  function closeOrder() {
-
-    setIsModalOpen(false);
-    setActiveOrder(null);
-
+  // Format Currency
+  function formatPrice(price) {
+    return Number(price || 0).toLocaleString("en-LK", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   }
 
 
-  // Get active order products
-  const activeProducts = (activeOrder?.products || [])
-    .map(getOrderedProduct)
-    .filter(Boolean);
+  // Format Date
+  function formatDate(date) {
+
+    if (!date) return "N/A";
+
+    return new Date(date).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  }
 
 
-  // Calculate total quantity
-  const totalQuantity = activeProducts.reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
+  // Format Time
+  function formatTime(date) {
 
+    if (!date) return "N/A";
 
-  // Calculate labelled total
-  const calculatedLabelledTotal = activeProducts.reduce(
-    (total, item) =>
-      total + item.labelledPrice * item.quantity,
-    0
-  );
-
-
-  // Calculate selling total
-  const calculatedTotal = activeProducts.reduce(
-    (total, item) =>
-      total + item.price * item.quantity,
-    0
-  );
+    return new Date(date).toLocaleTimeString("en-LK", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  }
 
 
   return (
@@ -317,6 +187,7 @@ export default function AdminOrdersPage() {
             <table className="w-full text-left border-collapse">
 
               <thead className="bg-accent text-white">
+
                 <tr>
                   <th className="px-5 py-4">Order ID</th>
                   <th className="px-5 py-4">Customer</th>
@@ -328,7 +199,9 @@ export default function AdminOrdersPage() {
                   <th className="px-5 py-4 text-center">Status</th>
                   <th className="px-5 py-4 text-center">Details</th>
                 </tr>
+
               </thead>
+
 
               <tbody>
 
@@ -336,7 +209,7 @@ export default function AdminOrdersPage() {
 
                   <tr
                     key={order._id || order.orderId}
-                    className="border-b border-gray-200 hover:bg-purple-50 transition"
+                    className="border-b border-gray-200 hover:bg-purple-50 transition duration-200"
                   >
 
                     <td className="px-5 py-4 font-semibold text-accent whitespace-nowrap">
@@ -370,10 +243,43 @@ export default function AdminOrdersPage() {
                     <td className="px-5 py-4 text-center">
 
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-semibold capitalize whitespace-nowrap ${getStatusStyle(order.status)}`}
+                        className={`px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap ${getStatusStyle(
+                          order.status
+                        )}`}
                       >
                         {order.status}
                       </span>
+                      <select 
+                            onChange={async (e) => {
+                              const updatedValue = e.target.value;
+                              try {
+                                const token = localStorage.getItem("token");
+                                await axios.put(
+                                  `${import.meta.env.VITE_BACKEND_URL}/api/orders/${order.orderId}/${updatedValue}`,
+                                {},
+                                {
+                                  headers: {
+                                      Authorization: "Bearer " + token,
+                                  },
+                                }
+                              );  
+                              setIsLoading(true);
+                              const updatedOrder = {...activeOrder};
+                              updatedOrder.status = updatedValue;
+                              setActiveOrder(updatedOrder);
+                                
+                            } catch(e){
+                                  toast.error("Error updating order status")
+                                  console.log(e);
+                                }
+                          }}
+                      >
+                        <option value="" disabled>Change status</option>
+                        <option value="pending">Pending</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                        <option value="returned">Returned</option>
+                      </select>
 
                     </td>
 
@@ -381,7 +287,8 @@ export default function AdminOrdersPage() {
 
                       <button
                         onClick={() => openOrder(order)}
-                        className="p-2 bg-purple-100 text-accent rounded-lg hover:bg-accent hover:text-white transition"
+                        className="p-2 bg-purple-100 text-accent rounded-lg hover:bg-accent hover:text-white transition duration-200"
+                        title="View Order Details"
                       >
                         <FaEye size={17} />
                       </button>
@@ -406,12 +313,14 @@ export default function AdminOrdersPage() {
       {/* TOTAL ORDERS */}
 
       {!isLoading && (
+
         <div className="mt-4 text-gray-500 text-sm">
           Total Orders:{" "}
           <span className="font-bold text-accent">
             {orders.length}
           </span>
         </div>
+
       )}
 
 
@@ -419,7 +328,7 @@ export default function AdminOrdersPage() {
 
       <Modal
         isOpen={isModalOpen}
-        onRequestClose={closeOrder}
+        onRequestClose={() => setIsModalOpen(false)}
         shouldCloseOnOverlayClick={true}
         shouldCloseOnEsc={true}
         contentLabel="Order Details"
@@ -431,21 +340,21 @@ export default function AdminOrdersPage() {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            padding: "16px"
+            padding: "16px",
           },
 
           content: {
             position: "relative",
             inset: "auto",
             width: "100%",
-            maxWidth: "950px",
+            maxWidth: "850px",
             maxHeight: "90vh",
             padding: "0",
             border: "none",
             borderRadius: "16px",
             overflow: "auto",
-            background: "#FBFBFB"
-          }
+            background: "#FBFBFB",
+          },
         }}
       >
 
@@ -455,9 +364,10 @@ export default function AdminOrdersPage() {
 
             {/* MODAL HEADER */}
 
-            <div className="bg-accent text-white p-6 flex justify-between items-center sticky top-0 z-10">
+            <div className="bg-accent text-white p-6 flex justify-between items-center">
 
               <div>
+
                 <div className="flex items-center gap-2 mb-2">
                   <FaReceipt className="text-xl" />
 
@@ -469,11 +379,14 @@ export default function AdminOrdersPage() {
                 <p className="text-purple-200 text-sm">
                   Order ID: {activeOrder.orderId}
                 </p>
+
               </div>
 
+
               <button
-                onClick={closeOrder}
+                onClick={() => setIsModalOpen(false)}
                 className="p-2 rounded-full hover:bg-white/20 transition"
+                title="Close"
               >
                 <FaTimes size={22} />
               </button>
@@ -484,21 +397,29 @@ export default function AdminOrdersPage() {
             <div className="p-6 space-y-6">
 
 
-              {/* STATUS AND DATE */}
+              {/* ORDER STATUS AND DATE */}
 
               <div className="flex flex-wrap justify-between items-center gap-4 bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
 
                 <div>
-                  <p className="text-sm text-gray-500 mb-2">
+
+                  <p className="text-sm text-gray-500 mb-1">
                     Order Status
                   </p>
 
-                  <span className={`px-4 py-2 rounded-full text-sm font-bold capitalize ${getStatusStyle(activeOrder.status)}`}>
+                  <span
+                    className={`px-4 py-2 rounded-full text-sm font-bold capitalize ${getStatusStyle(
+                      activeOrder.status
+                    )}`}
+                  >
                     {activeOrder.status}
                   </span>
+
                 </div>
 
+
                 <div className="text-right">
+
                   <p className="text-sm text-gray-500 mb-1">
                     Order Date
                   </p>
@@ -512,56 +433,74 @@ export default function AdminOrdersPage() {
                     <FaClock />
                     {formatTime(activeOrder.date)}
                   </div>
+
                 </div>
 
               </div>
+
 
 
               {/* CUSTOMER INFORMATION */}
 
               <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
 
-                <h3 className="text-lg font-bold text-secondary mb-5 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-secondary mb-4 flex items-center gap-2">
                   <FaUser className="text-accent" />
                   Customer Information
                 </h3>
 
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+                  {/* Customer Name */}
 
                   <div>
                     <p className="text-sm text-gray-500 mb-1">
                       Customer Name
                     </p>
+
                     <p className="font-semibold text-secondary">
                       {activeOrder.name || "N/A"}
                     </p>
                   </div>
+
+
+                  {/* Email */}
 
                   <div>
                     <p className="text-sm text-gray-500 mb-1 flex items-center gap-2">
                       <FaEnvelope className="text-accent" />
                       Email Address
                     </p>
+
                     <p className="font-semibold text-secondary break-all">
                       {activeOrder.email || "N/A"}
                     </p>
                   </div>
+
+
+                  {/* Phone */}
 
                   <div>
                     <p className="text-sm text-gray-500 mb-1 flex items-center gap-2">
                       <FaPhone className="text-accent" />
                       Phone Number
                     </p>
+
                     <p className="font-semibold text-secondary">
                       {activeOrder.phone || "N/A"}
                     </p>
                   </div>
+
+
+                  {/* Address */}
 
                   <div>
                     <p className="text-sm text-gray-500 mb-1 flex items-center gap-2">
                       <FaMapMarkerAlt className="text-accent" />
                       Delivery Address
                     </p>
+
                     <p className="font-semibold text-secondary">
                       {activeOrder.address || "N/A"}
                     </p>
@@ -572,118 +511,55 @@ export default function AdminOrdersPage() {
               </div>
 
 
+
               {/* ORDERED PRODUCTS */}
 
               <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
 
-                <div className="flex justify-between items-center mb-5">
-
-                  <h3 className="text-lg font-bold text-secondary flex items-center gap-2">
-                    <FaShoppingBag className="text-accent" />
-                    Ordered Products
-                  </h3>
-
-                  <span className="bg-purple-100 text-accent px-3 py-1 rounded-full text-sm font-semibold">
-                    {totalQuantity} Items
-                  </span>
-
-                </div>
+                <h3 className="text-lg font-bold text-secondary mb-4 flex items-center gap-2">
+                  <FaShoppingBag className="text-accent" />
+                  Ordered Products
+                </h3>
 
 
-                {activeProducts.length > 0 ? (
+                {activeOrder.products?.length > 0 ? (
 
                   <div className="overflow-x-auto">
 
-                    <table className="w-full text-left border-collapse">
+                    <table className="w-full text-left">
 
                       <thead className="bg-purple-50 text-accent">
 
                         <tr>
                           <th className="p-3">Product</th>
                           <th className="p-3 text-center">Quantity</th>
-                          <th className="p-3 text-right">Labelled Price</th>
-                          <th className="p-3 text-right">Selling Price</th>
-                          <th className="p-3 text-right">Subtotal</th>
+                          <th className="p-3 text-right">Price</th>
                         </tr>
 
                       </thead>
 
+
                       <tbody>
 
-                        {activeProducts.map((product, index) => (
+                        {activeOrder.products.map((product, index) => (
 
                           <tr
-                            key={product.productId + "-" + index}
-                            className="border-b border-gray-100 hover:bg-purple-50 transition"
+                            key={product._id || product.productId || index}
+                            className="border-b border-gray-100"
                           >
 
-                            {/* PRODUCT */}
-
-                            <td className="p-3 min-w-[250px]">
-
-                              <div className="flex items-center gap-3">
-
-                                {product.images?.[0] ? (
-
-                                  <img
-                                    src={product.images[0]}
-                                    alt={product.name}
-                                    onError={(e) => {
-                                      e.currentTarget.style.display = "none";
-                                    }}
-                                    className="w-16 h-16 rounded-lg object-cover border border-gray-200"
-                                  />
-
-                                ) : (
-
-                                  <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center">
-                                    <FaImage className="text-2xl text-gray-400" />
-                                  </div>
-
-                                )}
-
-                                <div>
-                                  <p className="font-semibold text-secondary">
-                                    {product.name}
-                                  </p>
-
-                                  <p className="text-xs text-gray-500 mt-1">
-                                    ID: {product.productId}
-                                  </p>
-                                </div>
-
-                              </div>
-
+                            <td className="p-3 font-medium text-secondary">
+                              {product.productName || product.name || product.productId || "Product"}
                             </td>
 
-
-                            {/* QUANTITY */}
-
-                            <td className="p-3 text-center">
-                              <span className="bg-purple-100 text-accent px-3 py-1 rounded-md font-semibold">
-                                {product.quantity}
-                              </span>
+                            <td className="p-3 text-center text-gray-600">
+                              {product.quantity ?? product.qty ?? 1}
                             </td>
 
-
-                            {/* LABELLED PRICE */}
-
-                            <td className="p-3 text-right whitespace-nowrap text-gray-500">
-                              Rs. {formatPrice(product.labelledPrice)}
-                            </td>
-
-
-                            {/* SELLING PRICE */}
-
-                            <td className="p-3 text-right whitespace-nowrap font-semibold text-secondary">
-                              Rs. {formatPrice(product.price)}
-                            </td>
-
-
-                            {/* SUBTOTAL */}
-
-                            <td className="p-3 text-right whitespace-nowrap font-bold text-accent">
-                              Rs. {formatPrice(product.price * product.quantity)}
+                            <td className="p-3 text-right font-semibold text-secondary whitespace-nowrap">
+                              Rs. {formatPrice(
+                                product.price ?? product.labelledPrice
+                              )}
                             </td>
 
                           </tr>
@@ -698,20 +574,12 @@ export default function AdminOrdersPage() {
 
                 ) : (
 
-                  <div className="text-center py-10 bg-gray-50 rounded-lg">
+                  <div className="text-center py-8">
 
-                    <FaBoxOpen className="text-5xl text-gray-300 mx-auto mb-3" />
+                    <FaBoxOpen className="text-4xl text-gray-300 mx-auto mb-3" />
 
-                    <p className="text-gray-600 font-semibold">
-                      No Product Details Available
-                    </p>
-
-                    <p className="text-gray-400 text-sm mt-2">
-                      No purchased product IDs or product information were found in this order.
-                    </p>
-
-                    <p className="text-xs text-gray-400 mt-3">
-                      Order product count: {activeOrder.products?.length || 0}
+                    <p className="text-gray-500">
+                      No product details available for this order.
                     </p>
 
                   </div>
@@ -721,40 +589,50 @@ export default function AdminOrdersPage() {
               </div>
 
 
-              {/* PAYMENT SUMMARY */}
+
+              {/* ORDER SUMMARY */}
 
               <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
 
-                <h3 className="text-lg font-bold text-secondary mb-5 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-secondary mb-4 flex items-center gap-2">
                   <FaTag className="text-accent" />
                   Payment Summary
                 </h3>
 
+
                 <div className="space-y-3">
 
+                  {/* Labelled Total */}
+
                   <div className="flex justify-between text-gray-600">
+
                     <span>Labelled Total</span>
+
                     <span className="font-semibold">
                       Rs. {formatPrice(activeOrder.labelledTotal)}
                     </span>
+
                   </div>
+
+
+                  {/* Discount */}
 
                   <div className="flex justify-between text-green-600">
+
                     <span>Discount</span>
+
                     <span className="font-semibold">
                       - Rs. {formatPrice(
-                        Number(activeOrder.labelledTotal || 0) -
-                        Number(activeOrder.total || 0)
+                        Math.max(
+                          0,
+                          Number(activeOrder.labelledTotal || 0) -
+                          Number(activeOrder.total || 0)
+                        )
                       )}
                     </span>
+
                   </div>
 
-                  <div className="flex justify-between text-gray-500 text-sm">
-                    <span>Calculated Products Total</span>
-                    <span>
-                      Rs. {formatPrice(calculatedTotal)}
-                    </span>
-                  </div>
 
                   <div className="border-t border-dashed border-gray-300 pt-3">
 
@@ -777,12 +655,12 @@ export default function AdminOrdersPage() {
               </div>
 
 
-              {/* CLOSE BUTTON */}
+              {/* MODAL FOOTER */}
 
               <div className="flex justify-end">
 
                 <button
-                  onClick={closeOrder}
+                  onClick={() => setIsModalOpen(false)}
                   className="bg-accent text-white px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition duration-300"
                 >
                   Close Details
