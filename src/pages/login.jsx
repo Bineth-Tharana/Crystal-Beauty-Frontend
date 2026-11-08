@@ -17,7 +17,15 @@ export default function LoginPage(){
             axios.post(import.meta.env.VITE_BACKEND_URL+"/api/users/login/google", {
                 accessToken: accessToken
             }).then((response)=>{
-                console.log(response.data)
+                toast.success("Login successful")
+                const token = response.data.token
+                localStorage.setItem("token", token);
+                if(response.data.role === "admin"){
+                    navigate("/admin/")
+                }
+                else{
+                    navigate("/")
+                }
             })
         }
     })
