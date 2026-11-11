@@ -6,6 +6,7 @@ import CartPage from "./client/cart";
 import CheckoutPage from "./client/checkout";
 import SearchProductPage from "./client/searchProducts";
 import HomeContent from "./client/homeContent";
+import AboutContent from "./client/aboutContent";
 
 export default function HomePage() {
   return (
@@ -15,7 +16,7 @@ export default function HomePage() {
         <Routes path="/*">
           <Route path="/" element={<HomeContent />} />
           <Route path="/products" element={<ProductPage />} />
-          <Route path="/about" element={<h1>About</h1>} />
+          <Route path="/about" element={<AboutContent />} />
           <Route path="/contact" element={<h1>Contact</h1>} />
           <Route path="/cart" element={<CartPage/>}/>
           <Route path="/checkout" element={<CheckoutPage/>}/>
