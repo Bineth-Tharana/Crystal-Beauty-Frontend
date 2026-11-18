@@ -1,4 +1,3 @@
-
 import axios from "axios";
 import { useEffect, useState } from "react";
 import Loading from "../../components/loading";
@@ -532,8 +531,9 @@ export default function AdminOrdersPage() {
 
                         <tr>
                           <th className="p-3">Product</th>
-                          <th className="p-3 text-center">Quantity</th>
-                          <th className="p-3 text-right">Price</th>
+                          <th className="p-3 text-right">Unit Price</th>
+                          <th className="p-3 text-center">Qty</th>
+                          <th className="p-3 text-right">Subtotal</th>
                         </tr>
 
                       </thead>
@@ -541,30 +541,62 @@ export default function AdminOrdersPage() {
 
                       <tbody>
 
-                        {activeOrder.products.map((product, index) => (
+                        {activeOrder.products.map((item, index) => {
 
-                          <tr
-                            key={product._id || product.productId || index}
-                            className="border-b border-gray-100"
-                          >
+                          // products are saved as { productInfo: {...}, quantity }
+                          const info = item.productInfo || item;
+                          const qty = item.quantity ?? item.qty ?? 1;
+                          const price = Number(info.price || 0);
+                          const labelled = Number(info.labelledPrice || 0);
 
-                            <td className="p-3 font-medium text-secondary">
-                              {product.productName || product.name || product.productId || "Product"}
-                            </td>
+                          return (
 
-                            <td className="p-3 text-center text-gray-600">
-                              {product.quantity ?? product.qty ?? 1}
-                            </td>
+                            <tr
+                              key={item._id || info.productId || index}
+                              className="border-b border-gray-100"
+                            >
 
-                            <td className="p-3 text-right font-semibold text-secondary whitespace-nowrap">
-                              Rs. {formatPrice(
-                                product.price ?? product.labelledPrice
-                              )}
-                            </td>
+                              <td className="p-3">
+                                <div className="flex items-center gap-3">
+                                  <img
+                                    src={info.images?.[0] || info.image}
+                                    alt={info.name}
+                                    className="w-14 h-14 rounded-lg object-cover bg-gray-100 shrink-0"
+                                  />
+                                  <div>
+                                    <p className="font-semibold text-secondary">
+                                      {info.name || info.productId || "Product"}
+                                    </p>
+                                    <p className="text-xs text-gray-400">
+                                      {info.productId}
+                                    </p>
+                                  </div>
+                                </div>
+                              </td>
 
-                          </tr>
+                              <td className="p-3 text-right whitespace-nowrap">
+                                <span className="font-semibold text-secondary">
+                                  Rs. {formatPrice(price)}
+                                </span>
+                                {labelled > price && (
+                                  <span className="block text-xs text-gray-400 line-through">
+                                    Rs. {formatPrice(labelled)}
+                                  </span>
+                                )}
+                              </td>
 
-                        ))}
+                              <td className="p-3 text-center text-gray-600">
+                                {qty}
+                              </td>
+
+                              <td className="p-3 text-right font-bold text-accent whitespace-nowrap">
+                                Rs. {formatPrice(price * qty)}
+                              </td>
+
+                            </tr>
+
+                          );
+                        })}
 
                       </tbody>
 
