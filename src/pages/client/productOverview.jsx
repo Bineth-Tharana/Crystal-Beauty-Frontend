@@ -5,6 +5,8 @@ import Loading from "../../components/loading";
 import ImageSlider from "../../components/imageSlider";
 import "./styles.css";
 import { addToCart, getCart } from "../../utils/cart";
+import toast from "react-hot-toast";
+import ReviewSection from "../../components/reviewSection";
 
 export default function ProductOverviewPage() {
   const params = useParams();
@@ -39,7 +41,8 @@ export default function ProductOverviewPage() {
   return (
     <>
       {status == "success" && (
-        <div className="w-full h-full flex flex-col md:flex-row md:max-h-full md:overflow-scroll-y pt-4">
+        <div className="w-full flex flex-col">
+        <div className="w-full flex flex-col md:flex-row pt-4">
             <h1 className="w-full md:hidden block my-8 text-center text-4xl text-secondary font-semibold">
                 {product.name}
 
@@ -148,6 +151,9 @@ export default function ProductOverviewPage() {
               </div>
             </div>
           </div>
+        </div>
+
+        <ReviewSection productId={productId} />
         </div>
       )}
 
