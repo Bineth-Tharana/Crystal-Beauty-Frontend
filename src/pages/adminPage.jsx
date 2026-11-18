@@ -3,11 +3,12 @@ import AddProductPage from "./admin/addProductPage";
 import AdminProductPage from "./admin/productsPage";
 import EditProductPage from "./admin/editProduct";
 import AdminOrdersPage from "./admin/adminOrdersPage";
+import AdminUsersPage from "./admin/adminUsersPage";
+import AdminReviewsPage from "./admin/adminReviewsPage";
 import Loading from "../components/loading";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import AdminUsersPage from "./admin/adminUsersPage";
 
 export default function AdminPage() {
   const location = useLocation();
@@ -76,7 +77,7 @@ export default function AdminPage() {
               <Route path="/products" element={<AdminProductPage />} />
               <Route path="/users" element={<AdminUsersPage />} />
               <Route path="/orders" element={<AdminOrdersPage />} />
-              <Route path="/reviews" element={<h1>Reviews</h1>} />
+              <Route path="/reviews" element={<AdminReviewsPage />} />
               <Route path="/add-product" element={<AddProductPage />} />
               <Route path="/edit-product" element={<EditProductPage />} />
             </Routes>
