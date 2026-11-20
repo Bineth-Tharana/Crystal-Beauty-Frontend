@@ -66,7 +66,7 @@ export default function LoginPage(){
 
                     value={email}
 
-                    className="w-[300px] h-[50px] border border-[#c3efe9] rounded-[20px] my-[20px]" />
+                    placeholder="Email" className="w-[300px] h-[50px] border border-[#c3efe9] rounded-[20px] my-[20px]" />
                     <input 
                     onChange={
                         (e)=>{
@@ -74,7 +74,7 @@ export default function LoginPage(){
                         }
                     }
                     value={password}
-                    type="password" className="w-[300px] h-[50px] border border-[#c3efe9] rounded-[20px] mb-[20px]" />
+                    type="password" placeholder="Password" className="w-[300px] h-[50px] border border-[#c3efe9] rounded-[20px] mb-[20px]" />
                     <button onClick={handleLogin} className="w-[300px] cursor-pointer h-[50px] bg-[#c3efe9] rounded-[20px] text-[20px] font-bold text-white my-[20px]">Login</button>
                     <button onClick={googleLogin} className="w-[300px] cursor-pointer h-[50px] flex justify-center items-center bg-[#c3efe9] rounded-[20px] text-[20px] font-bold text-white my-[20px]">
                         <GrGoogle className="text-xl text-gray-600 cursor-pointer hover:text-gray-800" />
