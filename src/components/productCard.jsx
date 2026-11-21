@@ -60,7 +60,7 @@ export default function ProductCard(props) {
 
                 {/* Price */}
                 <div className="flex items-center gap-3 mt-4">
-                    <span className="text-2xl font-bold text-blue-600">
+                    <span className="text-2xl font-bold text-accent">
                         Rs. {product.price?.toLocaleString()}
                     </span>
 
@@ -83,14 +83,14 @@ export default function ProductCard(props) {
 
                     <button
                         disabled={product.stock <= 0}
-                        className="flex-1 bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+                        className="flex-1 bg-accent text-white py-2.5 rounded-lg font-semibold hover:bg-accent/80 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
                     >
                         Add to Cart
                     </button>
 
                     <button
                         disabled={product.stock <= 0}
-                        className="px-4 py-2.5 border border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition disabled:border-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed"
+                        className="px-4 py-2.5 border border-accent text-accent rounded-lg font-semibold hover:bg-accent/10 transition disabled:border-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed"
                     >
                         Buy Now
                     </button>
@@ -100,5 +100,3 @@ export default function ProductCard(props) {
         </Link>
     );
 }
-
-
