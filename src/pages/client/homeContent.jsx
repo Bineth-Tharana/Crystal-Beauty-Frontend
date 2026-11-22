@@ -216,6 +216,12 @@ export default function HomeContent() {
                         <Link to="/search" className="hover:text-white">
                             Search
                         </Link>
+                        <Link to="/privacy" className="hover:text-white">
+                            Privacy
+                        </Link>
+                        <Link to="/terms" className="hover:text-white">
+                            Terms
+                        </Link>
                     </nav>
                     <p className="text-xs text-gray-500">
                         © {new Date().getFullYear()} Crystal Beauty Cosmetics.
