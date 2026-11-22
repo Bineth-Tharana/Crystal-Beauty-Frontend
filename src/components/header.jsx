@@ -32,7 +32,7 @@ export default function Header(){
                         Login
                     </Link>
                     :
-                    <button className="text-[20px] font-bold mx-2" onClick={()=>{
+                    <button className="text-[20px] font-bold mx-2 cursor-pointer" onClick={()=>{
                         localStorage.removeItem("token");
                         localStorage.removeItem("user");
                         window.location.href = "/";
