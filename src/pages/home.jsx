@@ -8,17 +8,20 @@ import SearchProductPage from "./client/searchProducts";
 import HomeContent from "./client/homeContent";
 import AboutContent from "./client/aboutContent";
 import ContactContent from "./client/contactContent";
+import { PrivacyPolicyPage, TermsPage } from "./client/legalPages";
 
 export default function HomePage() {
   return (
-    <div className="w-full h-screen flex flex-col items-center">
+    <div className="w-full min-h-screen flex flex-col items-center">
       <Header />
-      <div className="w-full h-[calc(100%-80px)] flex flex-col items-center">
+      <div className="w-full min-h-[calc(100vh-80px)] flex flex-col items-center">
         <Routes path="/*">
           <Route path="/" element={<HomeContent />} />
           <Route path="/products" element={<ProductPage />} />
           <Route path="/about" element={<AboutContent />} />
           <Route path="/contact" element={<ContactContent />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
           <Route path="/cart" element={<CartPage/>}/>
           <Route path="/checkout" element={<CheckoutPage/>}/>
           <Route path="/search" element={<SearchProductPage />} />
