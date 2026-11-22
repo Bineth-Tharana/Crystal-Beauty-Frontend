@@ -2,7 +2,7 @@ export default function UserData(){
     return(
         <div>
             <h1>Bineth Tharana</h1>
-            <button>Logout</button>
+            <button className="cursor-pointer">Logout</button>
         </div>
     )
 }
