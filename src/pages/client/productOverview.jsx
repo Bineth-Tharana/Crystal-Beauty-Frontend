@@ -7,6 +7,7 @@ import "./styles.css";
 import { addToCart, getCart } from "../../utils/cart";
 import toast from "react-hot-toast";
 import ReviewSection from "../../components/reviewSection";
+import StarRating from "../../components/starRating";
 
 export default function ProductOverviewPage() {
   const params = useParams();
@@ -16,6 +17,22 @@ export default function ProductOverviewPage() {
   const [status, setStatus] = useState("loading"); //loading, success, error
 
   const [product, setProduct] = useState(null);
+
+  // filled in by the review section once it has loaded the reviews
+  const [reviewSummary, setReviewSummary] = useState({ count: 0, average: 0 });
+
+  function handleReviewsLoaded(reviews) {
+    const count = reviews.length;
+    const average =
+      count === 0 ? 0 : reviews.reduce((sum, r) => sum + r.rating, 0) / count;
+    setReviewSummary({ count, average });
+  }
+
+  function scrollToReviews() {
+    document
+      .getElementById("reviews")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   const navigate = useNavigate();
 
@@ -83,6 +100,33 @@ export default function ProductOverviewPage() {
               <h1 className="w-full text-center my-2 text-md text-gray-600 font-semibold">
                 {product.productId}
               </h1>
+
+              {/* rating summary + link to the review section */}
+              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 my-2">
+                <button
+                  type="button"
+                  onClick={scrollToReviews}
+                  className="flex items-center gap-2 cursor-pointer"
+                  title="See customer reviews"
+                >
+                  <StarRating value={reviewSummary.average} size={20} />
+                  <span className="text-sm text-gray-600 underline">
+                    {reviewSummary.count === 0
+                      ? "No reviews yet"
+                      : `${reviewSummary.average.toFixed(1)} (${reviewSummary.count} ${
+                          reviewSummary.count === 1 ? "review" : "reviews"
+                        })`}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={scrollToReviews}
+                  className="px-4 py-1 rounded-full border border-accent text-accent text-sm font-semibold cursor-pointer hover:bg-accent hover:text-white transition"
+                >
+                  ✎ Write a review
+                </button>
+              </div>
 
               <p className="w-full text-center my-2 text-md text-gray-600 font-semibold">
                 {product.description}
@@ -153,7 +197,7 @@ export default function ProductOverviewPage() {
           </div>
         </div>
 
-        <ReviewSection productId={productId} />
+        <ReviewSection productId={productId} onLoaded={handleReviewsLoaded} />
         </div>
       )}
 
