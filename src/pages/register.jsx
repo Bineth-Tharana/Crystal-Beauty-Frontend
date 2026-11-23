@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function RegisterPage(){
 
@@ -34,7 +34,7 @@ export default function RegisterPage(){
 
         }catch(e){
 
-            toast.error(e.response.data.message);
+            toast.error(e.response?.data?.message || "Registration failed. Please try again.");
 
         }
 
@@ -93,10 +93,17 @@ export default function RegisterPage(){
 
                     <button
                         onClick={handleRegister}
-                        className="w-[300px] cursor-pointer h-[50px] bg-[#c3efe9] rounded-[20px] text-[20px] font-bold text-white my-[20px]"
+                        className="w-[300px] cursor-pointer h-[50px] bg-[#7B1252] hover:bg-[#5e0e3f] transition rounded-[20px] text-[20px] font-bold text-white my-[20px]"
                     >
                         Register
                     </button>
+
+                    <p className="text-gray-700">
+                        Already have an account?{" "}
+                        <Link to="/login" className="font-bold text-[#7B1252] underline hover:text-[#5e0e3f]">
+                            Login
+                        </Link>
+                    </p>
 
                 </div>
 
@@ -105,5 +112,3 @@ export default function RegisterPage(){
         </div>
     )
 }
-
-
