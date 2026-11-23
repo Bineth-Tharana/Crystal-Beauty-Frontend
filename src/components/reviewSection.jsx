@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import StarRating from "./starRating";
 
-export default function ReviewSection({ productId }) {
+export default function ReviewSection({ productId, onLoaded }) {
   const [reviews, setReviews] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [rating, setRating] = useState(0);
@@ -17,13 +17,17 @@ export default function ReviewSection({ productId }) {
   function loadReviews() {
     axios
       .get(`${api}/product/${productId}`)
-      .then((res) => setReviews(res.data))
+      .then((res) => {
+        setReviews(res.data);
+        if (onLoaded) onLoaded(res.data);
+      })
       .catch(() => toast.error("Could not load reviews"))
       .finally(() => setIsLoading(false));
   }
 
   useEffect(() => {
     loadReviews();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
   function handleSubmit(e) {
@@ -63,7 +67,7 @@ export default function ReviewSection({ productId }) {
       : reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
 
   return (
-    <section className="w-full max-w-3xl mx-auto px-4 py-10">
+    <section id="reviews" className="w-full max-w-3xl mx-auto px-4 py-10 scroll-mt-4">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-900">Customer Reviews</h2>
         <div className="mx-auto mt-3 h-1 w-20 rounded bg-[#f5c542]" />
@@ -78,6 +82,7 @@ export default function ReviewSection({ productId }) {
         )}
       </div>
 
+      {/* Write a review */}
       <div className="mb-8 p-6 rounded-xl border border-gray-100 shadow-sm">
         {token == null ? (
           <p className="text-center text-gray-600">
@@ -111,6 +116,7 @@ export default function ReviewSection({ productId }) {
         )}
       </div>
 
+      {/* Reviews list */}
       {isLoading ? (
         <p className="text-center text-gray-500">Loading reviews...</p>
       ) : reviews.length === 0 ? (
