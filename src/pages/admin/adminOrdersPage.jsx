@@ -1,3 +1,4 @@
+
 import axios from "axios";
 import { useEffect, useState } from "react";
 import Loading from "../../components/loading";
@@ -188,15 +189,12 @@ export default function AdminOrdersPage() {
               <thead className="bg-accent text-white">
 
                 <tr>
-                  <th className="px-5 py-4">Order ID</th>
-                  <th className="px-5 py-4">Customer</th>
-                  <th className="px-5 py-4">Email</th>
-                  <th className="px-5 py-4">Address</th>
-                  <th className="px-5 py-4">Phone</th>
-                  <th className="px-5 py-4 text-center">Total</th>
-                  <th className="px-5 py-4">Date</th>
-                  <th className="px-5 py-4 text-center">Status</th>
-                  <th className="px-5 py-4 text-center">Details</th>
+                  <th className="px-4 py-4">Order</th>
+                  <th className="px-4 py-4">Customer</th>
+                  <th className="px-4 py-4">Delivery</th>
+                  <th className="px-4 py-4 text-right">Total</th>
+                  <th className="px-4 py-4 text-center">Status</th>
+                  <th className="px-4 py-4 text-center">Details</th>
                 </tr>
 
               </thead>
@@ -208,47 +206,60 @@ export default function AdminOrdersPage() {
 
                   <tr
                     key={order._id || order.orderId}
-                    className="border-b border-gray-200 hover:bg-purple-50 transition duration-200"
+                    className="border-b border-gray-200 hover:bg-purple-50 transition duration-200 align-top"
                   >
 
-                    <td className="px-5 py-4 font-semibold text-accent whitespace-nowrap">
-                      {order.orderId}
+                    {/* Order ID + date */}
+                    <td className="px-4 py-4">
+                      <p className="font-semibold text-accent whitespace-nowrap">
+                        {order.orderId}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {formatDate(order.date)}
+                      </p>
                     </td>
 
-                    <td className="px-5 py-4 font-medium text-gray-700">
-                      {order.name}
+                    {/* Customer name + email */}
+                    <td className="px-4 py-4">
+                      <p className="font-medium text-gray-700">
+                        {order.name}
+                      </p>
+                      <p className="text-sm text-gray-500 break-all">
+                        {order.email}
+                      </p>
                     </td>
 
-                    <td className="px-5 py-4 text-gray-600">
-                      {order.email}
+                    {/* Address + phone */}
+                    <td className="px-4 py-4 max-w-[220px]">
+                      <p className="text-gray-700 break-words">
+                        {order.address}
+                      </p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {order.phone}
+                      </p>
                     </td>
 
-                    <td className="px-5 py-4 text-gray-600 max-w-[200px]">
-                      {order.address}
-                    </td>
-
-                    <td className="px-5 py-4 text-gray-600 whitespace-nowrap">
-                      {order.phone}
-                    </td>
-
-                    <td className="px-5 py-4 text-center font-bold text-accent whitespace-nowrap">
+                    <td className="px-4 py-4 text-right font-bold text-accent whitespace-nowrap">
                       Rs. {formatPrice(order.total)}
                     </td>
 
-                    <td className="px-5 py-4 text-gray-600 whitespace-nowrap">
-                      {formatDate(order.date)}
-                    </td>
+                    {/* Status badge + change status */}
+                    <td className="px-4 py-4">
 
-                    <td className="px-5 py-4 text-center">
+                      <div className="flex flex-col items-center">
 
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap ${getStatusStyle(
-                          order.status
-                        )}`}
-                      >
-                        {order.status}
-                      </span>
-                      <select 
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap ${getStatusStyle(
+                            order.status
+                          )}`}
+                        >
+                          {order.status}
+                        </span>
+
+                        <select
+                        value={order.status}
+                        className="mt-1 text-sm border border-gray-300 rounded-md px-1 py-0.5 bg-white cursor-pointer"
+                        
                             onChange={async (e) => {
                               const updatedValue = e.target.value;
                               try {
@@ -280,9 +291,11 @@ export default function AdminOrdersPage() {
                         <option value="returned">Returned</option>
                       </select>
 
+                      </div>
+
                     </td>
 
-                    <td className="px-5 py-4 text-center">
+                    <td className="px-4 py-4 text-center">
 
                       <button
                         onClick={() => openOrder(order)}
